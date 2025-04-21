@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>普平義工刷卡系統</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>普平義工刷卡系統</h2>
+
+  <div>
+    <input type="text" id="barcode" placeholder="請輸入條碼或姓名" />
+    <select id="group">
+    <option value="">請選擇組別</option>
+    <option value="大寮">大寮</option>
+    <option value="打便當">打便當</option>
+    <option value="照客">照客</option>
+    <option value="護班">護班</option>
+    <option value="書記">書記</option>
+    <option value="交通">交通</option>
+    <option value="安全">安全</option>
+    <option value="收供水">收供水</option>
+    <option value="大寮打掃">大寮打掃</option>
+    <option value="殿堂打掃">殿堂打掃</option>
+    <option value="環保">環保</option>
+    <option value="美工">美工</option>
+    <option value="資料">資料</option>
+    <option value="心燈">心燈</option>
+    <option value="梵唄">梵唄</option>
+    <option value="音響">音響</option>
+    <option value="視訊">視訊</option>
+    <option value="司儀">司儀</option>
+    <option value="機動">機動</option>
+    <option value="小老師">小老師</option>
+    <option value="其他">其他</option>
+    </select>
+    <br/>
+    <button onclick="submitCheck('簽到')">✅ 簽到</button>
+    <button onclick="submitCheck('簽退')">🔁 簽退</button>
+  </div>
+
+  <div class="result" id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
