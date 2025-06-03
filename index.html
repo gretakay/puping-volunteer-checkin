@@ -175,7 +175,7 @@
   className: group === "護班" ? className : ""
 }).toString();
 
-fetch('https://script.google.com/macros/s/AKfycbwIDIHkoNQ5tku9btC6UxG8rpuLfalLytpKqw8hJ9dtpLOsCZ0ZciFc7OIsMAujt8aT7Q/exec' + params)
+fetch('https://script.google.com/macros/s/AKfycbwIDIHkoNQ5tku9btC6UxG8rpuLfalLytpKqw8hJ9dtpLOsCZ0ZciFc7OIsMAujt8aT7Q/exec?' + params)
   .then(res => res.json())
   .then(response => displayResult({ ...response, displayGroup: finalGroup }))
   .catch(err => {
