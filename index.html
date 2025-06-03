@@ -1,46 +1,333 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>普平義工刷卡系統</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>普平_義工QRCode刷卡</title>
+  <style>
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      background-color: #f9f9f9;
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
+      box-sizing: border-box;
+    }
+
+    input, select, button {
+      font-size: 1.2em;
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    #submitBtn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #submitBtn:hover {
+      background-color: #45a049;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.4em;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 8px;
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #clock {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 1.1em;
+      color: #555;
+    }
+  </style>
 </head>
-<body>
-  <h2>普平義工刷卡系統</h2>
-
-  <div>
-    <input type="text" id="barcode" placeholder="請輸入條碼或姓名" />
-    <select id="group">
-    <option value="">請選擇組別</option>
-    <option value="大寮">大寮</option>
-    <option value="打便當">打便當</option>
-    <option value="照客">照客</option>
-    <option value="護班">護班</option>
-    <option value="書記">書記</option>
-    <option value="交通">交通</option>
-    <option value="安全">安全</option>
-    <option value="收供水">收供水</option>
-    <option value="大寮打掃">大寮打掃</option>
-    <option value="殿堂打掃">殿堂打掃</option>
-    <option value="環保">環保</option>
-    <option value="美工">美工</option>
-    <option value="資料">資料</option>
-    <option value="心燈">心燈</option>
-    <option value="梵唄">梵唄</option>
-    <option value="音響">音響</option>
-    <option value="視訊">視訊</option>
-    <option value="司儀">司儀</option>
-    <option value="機動">機動</option>
-    <option value="小老師">小老師</option>
-    <option value="其他">其他</option>
-    </select>
-    <br/>
-    <button onclick="submitCheck('簽到')">✅ 簽到</button>
-    <button onclick="submitCheck('簽退')">🔁 簽退</button>
+<body onload="initClock(); document.getElementById('codeInput').focus();">
+  <div id="clock"></div>
+  <div class="container">
+    <h1>普平_義工QRCode刷卡</h1>
+    <div id="loading" class="hidden" style="color:#555; margin-top:10px;">
+    🔄 處理中，請稍候...
   </div>
+    <input type="text" id="codeInput" placeholder="請掃描卡號" onkeydown="checkEnter(event)" />
+    <div>
+      <select id="groupSelect" onchange="handleGroupChange()">
+        <option value="">請選擇組別</option>
+        <option value="大寮">大寮</option>
+        <option value="打便當">打便當</option>
+        <option value="照客">照客</option>
+        <option value="護班">護班</option>
+        <option value="書記">書記</option>
+        <option value="交通">交通</option>
+        <option value="安全">安全</option>
+        <option value="心燈-收供水">心燈-收供水</option>
+        <option value="大寮善後">大寮善後</option>
+        <option value="殿堂清淨慧">殿堂清淨慧</option>
+        <option value="環保">環保</option>
+        <option value="美工">美工</option>
+        <option value="資料">資料</option>
+        <option value="資訊">資訊</option>
+        <option value="庶務">庶務</option>
+        <option value="活動">活動</option>
+        <option value="梵唄">梵唄</option>
+        <option value="音響">音響</option>
+        <option value="視訊">視訊</option>
+        <option value="攝影">攝影</option>
+        <option value="司儀">司儀</option>
+        <option value="花藝">花藝</option>
+        <option value="機動佈場">機動佈場</option>
+        <option value="小老師">小老師</option>
+        <option value="其他">其他</option>
+      </select>
+    </div>
+    <div id="classDiv" class="hidden">
+      <select id="classSelect">
+        <option value="">請選擇班級</option>
+        <option value="日初班">日初班</option>
+        <option value="日中班">日中班</option>
+        <option value="日高班">日高班</option>
+        <option value="日研班">日研班</option>
+        <option value="夜初班">夜初班</option>
+        <option value="夜中班">夜中班</option>
+        <option value="夜高班">夜高班</option>
+        <option value="夜研一">夜研一</option>
+        <option value="夜研四">夜研四</option>
+      </select>
+    </div>
+    <div id="otherGroupDiv" class="hidden">
+      <input type="text" id="otherGroupInput" placeholder="請輸入組別名稱" />
+    </div>
+    <div>
+      <select id="actionSelect">
+        <option value="簽到">簽到</option>
+        <option value="簽退">簽退</option>
+      </select>
+    </div>
+    <button id="submitBtn" onclick="submitCheckIn()">送出</button>
+    <div id="result"></div>
+  </div>
+  <script>
+    function checkEnter(e) {
+      if (e.key === "Enter") submitCheckIn();
+    }
 
-  <div class="result" id="result"></div>
+    function handleGroupChange() {
+      const group = document.getElementById("groupSelect").value;
+      document.getElementById("classDiv").classList.toggle("hidden", group !== "護班");
+      document.getElementById("otherGroupDiv").classList.toggle("hidden", group !== "其他");
+    }
 
-  <script src="script.js"></script>
+  function submitCheckIn() {
+  const code = document.getElementById("codeInput").value.trim();
+  const group = document.getElementById("groupSelect").value;
+  const action = document.getElementById("actionSelect").value;
+  const className = document.getElementById("classSelect").value;
+  const otherGroup = document.getElementById("otherGroupInput").value.trim();
+
+  if (!code) return showResult("⚠️ 請掃描卡號", "orange");
+  if (!group) return showResult("⚠️ 請選擇組別", "orange");
+  if (group === "護班" && !className) return showResult("⚠️ 請選擇班級", "orange");
+  if (group === "其他" && !otherGroup) return showResult("⚠️ 請輸入組別名稱", "orange");
+
+  const finalGroup = group === "其他" ? otherGroup : group;
+
+  // ✅ 顯示處理中
+  document.getElementById("loading").classList.remove("hidden");
+  document.getElementById("result").innerHTML = "";
+
+  // ✅ 儲存 group 給顯示用（避免後面清掉畫面看不到）
+  const displayGroup = finalGroup;
+
+  // ✅ 呼叫 Apps Script
+  google.script.run
+    .withSuccessHandler((response) => displayResult({ ...response, displayGroup }))
+    .checkInWithValidation(code, finalGroup, action, group === "護班" ? className : "");
+
+  // ✅ 清空表單欄位（之後執行）
+  document.getElementById("codeInput").value = "";
+  document.getElementById("codeInput").focus();
+  document.getElementById("groupSelect").value = "";
+  document.getElementById("classSelect").value = "";
+  document.getElementById("otherGroupInput").value = "";
+  handleGroupChange(); // 確保隱藏班級/其他欄位
+}
+
+function displayResult(response) {
+ // ✅ 處理完後隱藏 loading 提示
+  
+  document.getElementById("loading").classList.add("hidden");
+  //console.log("🟢 displayResult 被執行！");
+
+  const { status, message, action } = response;
+  const resultDiv = document.getElementById("result");
+  const name = message.split(" ")[0];
+  const group = response.displayGroup;
+  const now = new Date().toLocaleString();
+  //console.log("🟡 前端收到 action:", action);
+
+  resultDiv.removeAttribute("style");
+  resultDiv.innerHTML = "";
+  resultDiv.style.padding = "12px";
+  resultDiv.style.borderRadius = "8px";
+  resultDiv.style.marginTop = "20px";
+  resultDiv.style.fontWeight = "bold";
+  resultDiv.style.fontSize = "1.3em";
+  resultDiv.style.display = "inline-block";
+
+  if (status === "success") {
+    if (action === "簽到") {
+      resultDiv.style.backgroundColor = "#4CAF50";
+      resultDiv.style.color = "white";
+      resultDiv.innerHTML = `✅ <strong>${group}  - ${message}</strong>`;
+      // 加上列印觸發
+  triggerPrint({ name, group, time: now });
+    } else if (action === "簽退") {
+      resultDiv.style.backgroundColor = "#2196F3";
+      resultDiv.style.color = "white";
+      resultDiv.innerHTML = `📤 <strong>${group}  - ${message}</strong>`;
+    } else {
+      resultDiv.style.backgroundColor = "#666";
+      resultDiv.style.color = "white";
+      resultDiv.innerHTML = "✅ <strong>" + message + "</strong>";
+    }
+    document.getElementById("groupSelect").value = "";
+    handleGroupChange(); // 順便隱藏班級或其他組別欄位
+  } else if (status === "warning") {
+    resultDiv.style.backgroundColor = "#fff3cd";
+    resultDiv.style.color = "#856404";
+    resultDiv.style.border = "1px solid #ffeeba";
+    resultDiv.innerHTML = "⚠️ " + message;
+  } else {
+    resultDiv.style.backgroundColor = "#f8d7da";
+    resultDiv.style.color = "#721c24";
+    resultDiv.style.border = "1px solid #f5c6cb";
+    resultDiv.innerHTML = "❌ " + message;
+  }
+}
+
+
+    function showResult(msg, color) {
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.color = color;
+      resultDiv.textContent = msg;
+    }
+
+    function initClock() {
+      const clock = document.getElementById("clock");
+      function update() {
+        const now = new Date();
+        clock.textContent = now.toLocaleString("zh-TW", {
+          hour12: false,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit"
+        });
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+  function triggerPrint({ name, group }) {
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+
+  printWindow.document.write(`
+    <html>
+    <head>
+      <style>
+        @media print {
+          @page {
+            size: 70mm 40mm; /* 貼紙大小 */
+            margin: 0;
+          }
+          body {
+            margin: 0;
+            padding: 0;
+          }
+        }
+
+        html, body {
+          width: 70mm;
+          height: 40mm;
+          margin: 0;
+          padding: 0;
+          font-family: "Noto Sans TC", sans-serif;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          box-sizing: border-box;
+        }
+
+        .label {
+          width: 100%;
+          height: 100%;
+          transform: scale(0.98);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          box-sizing: border-box;
+        }
+
+        .group {
+          font-size: 22pt;
+          font-weight: bold;
+          margin-bottom: 4px;
+          white-space: nowrap;
+        }
+
+        .name {
+          font-size: 26pt;
+          font-weight: bold;
+          white-space: nowrap;
+        }
+      </style>
+    </head>
+    <body onload="window.print(); setTimeout(() => window.close(), 100);">
+      <div class="label">
+        <div class="group">${group}</div>
+        <div class="name">${name}</div>
+      </div>
+    </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+}
+  </script>
 </body>
 </html>
