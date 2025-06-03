@@ -168,22 +168,20 @@
   // ✅ 儲存 group 給顯示用（避免後面清掉畫面看不到）
   const displayGroup = finalGroup;
 
- fetch('https://script.google.com/macros/s/AKfycbwIDIHkoNQ5tku9btC6UxG8rpuLfalLytpKqw8hJ9dtpLOsCZ0ZciFc7OIsMAujt8aT7Q/exec', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    cardNumber: code,
-    group: finalGroup,
-    action,
-    className: group === "護班" ? className : ""
-  })
-})
-.then(res => res.json())
-.then(response => displayResult({ ...response, displayGroup: finalGroup }))
-.catch(err => {
-  document.getElementById("loading").classList.add("hidden");
-  showResult("❌ 傳送失敗：" + err, "red");
-});
+ const params = new URLSearchParams({
+  cardNumber: code,
+  group: finalGroup,
+  action,
+  className: group === "護班" ? className : ""
+}).toString();
+
+fetch('https://script.google.com/macros/s/AKfycbwIDIHkoNQ5tku9btC6UxG8rpuLfalLytpKqw8hJ9dtpLOsCZ0ZciFc7OIsMAujt8aT7Q/exec' + params)
+  .then(res => res.json())
+  .then(response => displayResult({ ...response, displayGroup: finalGroup }))
+  .catch(err => {
+    document.getElementById("loading").classList.add("hidden");
+    showResult("❌ 傳送失敗：" + err, "red");
+  });
     
   // ✅ 清空表單欄位（之後執行）
   document.getElementById("codeInput").value = "";
